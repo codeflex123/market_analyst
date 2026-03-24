@@ -5,17 +5,15 @@ import sys
 import socket
 import streamlit as st
 
-# MUST BE THE FIRST COMMAND in any Streamlit app
+# MUST BE THE FIRST COMMAND
 st.set_page_config(page_title="Market Analyst AI", layout="wide", page_icon="📈")
 
 # Function to check if a port is already in use
 def is_port_in_use(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        # On some cloud environments, localhost might be restricted
-        # We try 0.0.0.0 as well
         return s.connect_ex(('127.0.0.1', port)) == 0
 
-# Use st.cache_resource to ensure this runs only once per app session (globally)
+# Start backend once
 @st.cache_resource
 def start_backend():
     port = 8000
@@ -23,46 +21,45 @@ def start_backend():
         return "Backend already running"
         
     python_path = sys.executable
-    # Absolute path to the main.py
-    cmd = [
-        python_path, "-m", "uvicorn", 
-        "phase_6.src.api.main:app", 
-        "--host", "0.0.0.0", 
-        "--port", str(port)
-    ]
-    
+    cmd = [python_path, "-m", "uvicorn", "phase_6.src.api.main:app", "--host", "0.0.0.0", "--port", str(port)]
     env = os.environ.copy()
-    # Add current directory to PYTHONPATH
-    current_dir = os.getcwd()
-    env["PYTHONPATH"] = f"{current_dir}:{env.get('PYTHONPATH', '')}"
+    env["PYTHONPATH"] = f".:{env.get('PYTHONPATH', '')}"
     
-    # Start the backend as a background process
     process = subprocess.Popen(cmd, env=env)
     
-    # Wait for the backend to be ready (up to 20 seconds)
-    max_retries = 20
-    for i in range(max_retries):
-        if is_port_in_use(port):
-            return "Backend started"
+    # Wait for the backend
+    for _ in range(15):
+        if is_port_in_use(port): return "Backend started"
         time.sleep(1)
-        
-    return "Backend failed to start in time"
+    return "Backend failed to start"
 
-# Entry point for Streamlit
 def run_app():
-    # 1. Start backend as a global resource
+    # 1. Sidebar selection at the TOP level
+    with st.sidebar:
+        st.image("https://cdn-icons-png.flaticon.com/512/2622/2622649.png", width=100)
+        st.title("Market Analyst AI")
+        st.markdown("---")
+        analysis_mode = st.radio(
+            "Navigation Mode",
+            ["Market Analyst", "Stock Comparison", "Portfolio Analysis"],
+            index=0
+        )
+        st.markdown("---")
+        st.info(f"📍 Mode: **{analysis_mode}**")
+        st.markdown("---")
+        with st.expander("🛡️ About"):
+            st.caption("Multi-agent Institutional Portfolio Intelligence.")
+
+    # 2. Start backend
     _ = start_backend()
     
-    # 2. Run the UI logic
+    # 3. Dynamic import and run
     try:
-        # Dynamic import to avoid early st.set_page_config calls
         from phase_6.src.ui.app import main
-        main()
+        main(analysis_mode)
     except Exception as e:
         st.error("### ❌ UI Rendering Error")
-        st.write("The backend is running, but the frontend failed to load.")
         st.exception(e)
-        st.info("Check the Streamlit Logs (bottom right) for more details.")
 
 if __name__ == "__main__":
     run_app()
