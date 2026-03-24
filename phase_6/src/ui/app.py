@@ -143,14 +143,17 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.header("Settings")
-    api_base = st.text_input("API Base URL", value="http://localhost:8000")
-    if st.button("Clear Cache"):
-        if os.path.exists("analysis_cache.json"):
-            os.remove("analysis_cache.json")
-            st.success("Cache cleared!")
-            
-    st.info(f"Currently in **{analysis_mode}** mode.")
+    st.info(f"📍 Mode: **{analysis_mode}**")
+    st.markdown("---")
+    st.markdown("""
+    ### 💡 Quick Tips
+    - **Single Stock**: Just type 'Reliance'
+    - **Comparison**: 'Compare Tata and M&M'
+    - **Portfolio**: 'Analysis for Kotak, HDFC, SBI'
+    """)
+    st.markdown("---")
+    with st.expander("🛡️ About Analyst AI"):
+        st.caption("A multi-agent system powered by Gemini & Groq, utilizing the Model Context Protocol (MCP) for deep market reasoning.")
 
 # Map modes to intents
 MODE_INTENT_MAP = {
@@ -158,6 +161,8 @@ MODE_INTENT_MAP = {
     "Stock Comparison": "comparison",
     "Portfolio Analysis": "portfolio"
 }
+
+api_base = "http://localhost:8000" # Hardcoded for background sync
 
 st.markdown(f"""
 <div class='mode-header'>
@@ -168,6 +173,34 @@ st.markdown(f"""
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+# Welcome Screen for Empty State
+if not st.session_state.messages:
+    st.markdown(f"""
+    <div style='background: linear-gradient(135deg, #1E2130 0%, #11141D 100%); padding: 60px; border-radius: 20px; text-align: center; border: 1px solid #3E4451; margin-top: 40px;'>
+        <img src="https://cdn-icons-png.flaticon.com/512/2622/2622649.png" width="80" style="margin-bottom: 20px;">
+        <h1 style='color: white; margin-bottom: 10px;'>Your AI Institutional Analyst</h1>
+        <p style='color: #8E94AA; font-size: 18px; max-width: 600px; margin: 0 auto;'>
+            Welcome to the premium Market Analyst workflow. Access real-time technicals, 
+            deep fundamentals, and sentiment analysis powered by a multi-agent logic layer.
+        </p>
+        <div style='margin-top: 40px; display: flex; justify-content: center; gap: 20px;'>
+            <div style='background: #2D3241; padding: 20px; border-radius: 12px; width: 180px;'>
+                <h4 style='color: #4CAF50; margin: 0;'>70+ India Stocks</h4>
+                <p style='color: #666; font-size: 12px; margin-top: 5px;'>Mapped & Verified</p>
+            </div>
+            <div style='background: #2D3241; padding: 20px; border-radius: 12px; width: 180px;'>
+                <h4 style='color: #3498db; margin: 0;'>Multi-Agent</h4>
+                <p style='color: #666; font-size: 12px; margin-top: 5px;'>Parallel Analysis</p>
+            </div>
+            <div style='background: #2D3241; padding: 20px; border-radius: 12px; width: 180px;'>
+                <h4 style='color: #FFC107; margin: 0;'>MCP Logic</h4>
+                <p style='color: #666; font-size: 12px; margin-top: 5px;'>Deep Reasoning</p>
+            </div>
+        </div>
+        <p style='color: #3E4451; margin-top: 40px; font-size: 14px;'>Select a mode in the sidebar and enter a query below to begin.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Map common names to tickers
 NAME_MAP = {

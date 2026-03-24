@@ -227,12 +227,12 @@ def master_node(state: GraphState):
     # Optional: Sequential Thinking MCP Step
     try:
         thought_process = asyncio.run(mcp_mgr.call_sequential_thinking(
-            thought=f"I need to synthesize a market report for {', '.join(symbols)} with intent {intent}.",
-            context=context[:2000] # Truncate for thinking context
+            thought=f"I need to synthesize an institutional-grade market report for {', '.join(symbols)} with intent {intent}.",
+            context=context[:2000]
         ))
         if thought_process:
             logger.info("Sequential Thinking Step Completed via MCP.")
-            final_messages.append("Logic Layer: Sequential Thinking (MCP)")
+            final_messages.append("Logic Layer: Sequential Thinking (Institutional Mode)")
     except Exception as e:
         logger.warning(f"Sequential Thinking MCP step skipped: {str(e)}")
 
