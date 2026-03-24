@@ -29,21 +29,51 @@ NAME_MAP = {
     "tcs": "TCS.NS"
 }
 
-BLACKLIST = {"how", "is", "doing", "was", "the", "and", "buy", "sell", "compare", "portfolio", "analysis", "for", "against", "versus", "vs", "stock", "stocks", "market", "query", "answer"}
+# Expanded blacklist to prevent junk ticker extraction
+BLACKLIST = {
+    "how", "is", "doing", "was", "the", "and", "buy", "sell", "compare", "portfolio", 
+    "analysis", "for", "against", "versus", "vs", "stock", "stocks", "market", 
+    "query", "answer", "status", "bank", "share", "price", "of", "get", "what", 
+    "please", "analyze", "give", "me", "show", "tell", "score", "fundamental", 
+    "technical", "sentiment", "report", "news", "latest", "about"
+}
 
 def extract_tickers(text):
-    text = text.lower()
+    text_lower = text.lower()
     tickers = []
+    
+    # 1. Direct Name Mapping (High Confidence)
+    matched_names = []
     for name, ticker in NAME_MAP.items():
-        if name in text: tickers.append(ticker)
+        if name in text_lower:
+            tickers.append(ticker)
+            matched_names.append(name)
+            
+    # 2. Regex for Raw Tickers (e.g., RELIANCE.NS or SBIN)
+    # But ONLY if the word isn't already part of a matched name or in the blacklist
     found = re.findall(r'\b([A-Za-z]{2,10}(?:\.[A-Z]{2})?)\b', text)
     for f in found:
-        if f.lower() not in BLACKLIST and len(f) >= 3:
-            val = f.upper()
-            if not val.endswith(".NS") and val.isalpha():
-                if val not in [t.split('.')[0] for t in tickers]:
-                    tickers.append(f"{val}.NS")
-            elif val.endswith(".NS"): tickers.append(val)
+        f_lower = f.lower()
+        if f_lower in BLACKLIST:
+            continue
+            
+        # Avoid re-extracting words that were part of a full name (e.g., "Bank" in "HDFC Bank")
+        already_matched = False
+        for name in matched_names:
+            if f_lower in name:
+                already_matched = True
+                break
+        if already_matched:
+            continue
+            
+        val = f.upper()
+        if val.endswith(".NS"):
+            tickers.append(val)
+        elif val.isalpha() and len(val) >= 3:
+            # Fallback for suspected tickers (append .NS)
+            if val not in [t.split('.')[0] for t in tickers]:
+                tickers.append(f"{val}.NS")
+                
     return list(set(tickers))
 
 def parse_premium_report(full_report):
