@@ -136,7 +136,27 @@ def main(analysis_mode):
         with cols[i % 3]:
             if st.button(f"💬 {suggestion}", use_container_width=True, key=f"sugg_{i}"):
                 st.session_state.messages.append({"role": "user", "content": suggestion})
+                st.session_state.trigger_analysis = True
                 st.rerun()
+
+    # Analysis Trigger Logic for Buttons/Suggestions
+    if st.session_state.get("trigger_analysis"):
+        st.session_state.trigger_analysis = False # Reset
+        prompt = st.session_state.messages[-1]["content"]
+        tickers = extract_tickers(prompt)
+        if tickers:
+            intent = MODE_INTENT_MAP.get(analysis_mode, "status")
+            with st.chat_message("assistant"):
+                placeholder = st.empty()
+                placeholder.markdown(f"🔍 Initializing **{analysis_mode}** workflow...")
+                try:
+                    response = requests.post(f"{api_base}/analyze", json={"symbols": tickers, "intent": intent})
+                    if response.status_code == 200:
+                        data = response.json()
+                        full_report = data.get("final_report", "")
+                        st.session_state.messages.append({"role": "assistant", "content": full_report, "data": data})
+                        st.rerun()
+                except Exception as e: st.error(f"Error: {str(e)}")
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
