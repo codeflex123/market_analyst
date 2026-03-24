@@ -114,7 +114,29 @@ def main(analysis_mode):
                 <div style='background: #2D3241; padding: 20px; border-radius: 12px; width: 180px;'><h4 style='color: #4CAF50; margin: 0;'>70+ India Stocks</h4></div>
                 <div style='background: #2D3241; padding: 20px; border-radius: 12px; width: 180px;'><h4 style='color: #3498db; margin: 0;'>Multi-Agent</h4></div>
                 <div style='background: #2D3241; padding: 20px; border-radius: 12px; width: 180px;'><h4 style='color: #FFC107; margin: 0;'>MCP Logic</h4></div>
-            </div></div>""", unsafe_allow_html=True)
+            </div></div>
+            <p style='color: #3E4451; margin-top: 40px; font-size: 14px;'>Select a mode in the sidebar and enter a query below to begin.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Suggestion Pills
+    st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
+    st.markdown("#### 🚀 Try one of these:")
+    
+    suggestions = {
+        "Market Analyst": ["Analyze Reliance", "Status of HDFC Bank", "ICICI Fundamental score"],
+        "Stock Comparison": ["Compare Kotak and HDFC", "SBI vs Axis Bank", "Tata Motors vs Mahindra"],
+        "Portfolio Analysis": ["Analysis for RELIANCE, TCS, INFY", "Portfolio: Wipro, ITC, SBI", "Check Kotak, HDFC, ICICI"]
+    }
+    
+    cols = st.columns(3)
+    current_suggestions = suggestions.get(analysis_mode, suggestions["Market Analyst"])
+    
+    for i, suggestion in enumerate(current_suggestions):
+        with cols[i % 3]:
+            if st.button(f"💬 {suggestion}", use_container_width=True, key=f"sugg_{i}"):
+                st.session_state.messages.append({"role": "user", "content": suggestion})
+                st.rerun()
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
