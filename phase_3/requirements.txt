@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+yfinance
+duckduckgo_search
+langgraph
+langchain
+langchain-groq
+langchain-google-genai
+pytest
+pytest-asyncio
+pytest-mock
+python-dotenv

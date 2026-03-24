@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+analysis_cache.json
+streamlit.log
+*.log
+logs/
+.DS_Store
+.gemini/
+.agents/
+node_modules/
