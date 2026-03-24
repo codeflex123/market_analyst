@@ -8,11 +8,8 @@ import os
 import json
 
 def main():
-    # Page config
-    st.set_page_config(page_title="Market Analyst AI", layout="wide", page_icon="📈")
-
-# Premium CSS for the dashboard
-st.markdown("""
+    # Premium CSS for the dashboard
+    st.markdown("""
 <style>
     .reportview-container {
         background-color: #0E1117;

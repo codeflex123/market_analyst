@@ -1,9 +1,8 @@
-import subprocess
-import time
-import os
-import sys
 import socket
 import streamlit as st
+
+# MUST BE THE FIRST COMMAND in any Streamlit app
+st.set_page_config(page_title="Market Analyst AI", layout="wide", page_icon="📈")
 
 # Function to check if a port is already in use
 def is_port_in_use(port):
@@ -47,9 +46,8 @@ def start_backend():
 
 # Entry point for Streamlit
 def run_app():
-    # 1. Start backend as a global resource with status updates
-    with st.spinner("Initializing Market Analyst Backend..."):
-        status = start_backend()
+    # 1. Start backend as a global resource
+    _ = start_backend()
     
     # 2. Run the UI logic
     try:
